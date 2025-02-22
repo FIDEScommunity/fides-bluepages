@@ -1,0 +1,180 @@
+spring:
+  application:
+    name: blue-pages-backend
+
+  datasource:
+    url: from_profile
+    username: from_profile
+    password: from_profile
+  flyway:
+    url: from_profile
+    user: from_profile
+    password: from_profile
+  jpa:
+    open-in-view: true
+    show-sql: false
+  mvc:
+    format:
+      date: yyyy-MM-dd
+    static-path-pattern: /api/static/**
+  docker.compose.lifecycle-management: start_only
+  threads:
+    virtual:
+      enabled: true
+  data:
+    web:
+      pageable:
+        max-page-size: 1000
+management:
+  endpoint:
+    restart:
+      enabled: true
+    health:
+      probes:
+        enabled: true
+      livenessState:
+        enabled: true
+      readinessState:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "restart,health"
+    restart:
+      enabled: true
+    shutdown:
+      enabled: true
+  server:
+    port: 9187
+
+jwt:
+  paths-to-ignore: /webpublic/**,/public/**
+springdoc:
+  swagger-ui:
+    path: /api/public/swagger-ui
+  api-docs:
+    path: /api/public/api-docs
+  packages-to-scan: community.fides.bluepages.backend.rest.api
+
+externalServices:
+  ebsi:
+    baseUrl: https://api-pilot.ebsi.eu
+  organizational-wallet:
+    apiKey: <configureInSecret>
+    apiBaseUrl: https://wallet.acc.credenco.com/api/
+
+display-config:
+  genericAttributes:
+    title:
+      credentialType: KVKRegistration
+      attribute: naam
+      fallback:
+        credentialType: ContactInfo
+        attribute: legalName
+    subTitle1:
+      credentialType: ContactInfo
+      attribute: location.address.addressLocality
+    subTitle2:
+      credentialType: ContactInfo
+      attribute: url
+    logo:
+      credentialType: ContactInfo
+      attribute: logo
+  services:
+    eInvoice:
+      title: E-invoicing
+      icon: pi-receipt
+      displayOrder: 10
+      serviceTypeLabel: Service type
+      serviceEndpointLabel: E-invoice address
+    OID4VCI:
+      title: OpenID4 Verifiable Credential Issuance
+      icon: pi-upload
+      displayOrder: 11
+      serviceTypeLabel: Service type
+      serviceEndpointLabel: Credential Issuer address
+    OID4VP:
+      title: OpenID4 Verifiable Presentation
+      icon: pi-download
+      displayOrder: 12
+      serviceTypeLabel: Service type
+      serviceEndpointLabel: Credential Wallet address
+    LinkedDomains:
+      title: Linked Domains
+      icon: pi-id-card
+      displayOrder: 13
+      serviceTypeLabel: Service type
+      serviceEndpointLabel: Domain addresses
+  credentials:
+    ContactInfo:
+      issuanceUrl: https://wallet.acc.credenco.com/public/df803dd4-32c6-4a69-afe5-d807c6701ed7/company/.well-known/openid-credential-issuer
+      icon: pi-phone
+      displayOrder: 1
+      attributesToShow:
+        location_address_postalCode:
+          type: text
+          label: Postal code
+        location_address_streetAddress:
+          type: text
+          label: Street
+        location_address_addressLocality:
+          type: text
+          label: Place / country
+        email:
+          type: email
+          label: Email
+        telephone:
+          type: phone
+          label: Phone
+        url:
+          type: url
+          label: Website
+        logo:
+          type: image
+          label: Logo
+    KVKRegistration:
+      issuanceUrl: https://wallet.acc.credenco.com/public/df803dd4-32c6-4a69-afe5-d807c6701ed7/company/.well-known/openid-credential-issuer
+      icon: pi-briefcase
+      displayOrder: 3
+      attributesToShow:
+        kvkNummer:
+          type: text
+        naam:
+          type: text
+        rechtsvorm:
+          type: text
+    IBANLegalPerson:
+      issuanceUrl: https://agent.abn.demo.sphereon.com/.well-known/openid-credential-issuer
+      icon: pi-building-columns
+      displayOrder: 6
+      attributesToShow:
+        bankName:
+          type: text
+        iban:
+          type: text
+        accountHolder:
+          type: text
+    Omzetbelasting:
+      issuanceUrl: https://agent.wallet.bd.demo.sphereon.com/oid4vci/.well-known/openid-credential-issuer
+      icon: pi-receipt
+      displayOrder: 5
+      attributesToShow:
+        naam:
+          type: text
+          label: Name
+        rsin:
+          type: text
+          label: Rsin
+        btw-id:
+          type: text
+          label: BTW id
+        ob-nummer:
+          type: text
+          label: OB nummer
+crawler:
+  enabled: true
+  ebsi-api-crawler-enabled: true
+  crawl-frequency-recently-updated-dids: PT1H
+  crawl-frequency-not-recently-updated-dids: PT24H
+  recently-changed-duration: PT24H
+  max-number-of-concurrent-crawls: 10

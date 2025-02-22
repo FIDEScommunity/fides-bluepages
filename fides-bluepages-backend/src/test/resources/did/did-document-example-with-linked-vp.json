@@ -1,0 +1,56 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/did/v1",
+    "https://w3id.org/security/suites/jws-2020/v1"
+  ],
+  "service": [
+    {
+      "id": "did:ebsi:zqk4QzR8JMPDsPAdWhWJPLQ#kvk_registration",
+      "type": "LinkedVerifiablePresentation",
+      "serviceEndpoint": "https://wallet.acc.credenco.com/api/linkedvp/613ffa41-477a-4b62-a436-b85e5b5118f2/kvk_registration"
+    },
+    {
+      "id": "did:ebsi:zqk4QzR8JMPDsPAdWhWJPLQ#einvoicing",
+      "type": "eInvoice",
+      "serviceEndpoint": "https://einvoice.dutchcrafting.com/einvoice"
+    }
+  ],
+  "id": "did:ebsi:zqk4QzR8JMPDsPAdWhWJPLQ",
+  "controller": [
+    "did:ebsi:zqk4QzR8JMPDsPAdWhWJPLQ"
+  ],
+  "verificationMethod": [
+    {
+      "id": "did:ebsi:zqk4QzR8JMPDsPAdWhWJPLQ#hp2ffVYXOo-yVB156MEZ0t0xGMspujEuFk6Sp464ooM",
+      "type": "JsonWebKey2020",
+      "controller": "did:ebsi:zqk4QzR8JMPDsPAdWhWJPLQ",
+      "publicKeyJwk": {
+        "kty": "EC",
+        "crv": "secp256k1",
+        "x": "R1RIM8OwCoyXjrY9pOsxyskz5iU3OmJ_666XUoW_MDk",
+        "y": "jmUmYgZUx1fve7Ovl2bQeN6r-uuvxVwGbaLM3oqLMv8"
+      }
+    },
+    {
+      "id": "did:ebsi:zqk4QzR8JMPDsPAdWhWJPLQ#ML7UeMuMJul4uxfQnb-0Z3JVU44pci0LYYfXD1ZbIow",
+      "type": "JsonWebKey2020",
+      "controller": "did:ebsi:zqk4QzR8JMPDsPAdWhWJPLQ",
+      "publicKeyJwk": {
+        "kty": "EC",
+        "x": "rI4lmmeV8DjrQ6UHcW4MGJYjEPydIuFriAZC1YX7888",
+        "y": "_IMMWrRuCsiLFMZ0yb4FzVF2Uo3AtURW2Acr9sDL7o0",
+        "crv": "P-256"
+      }
+    }
+  ],
+  "authentication": [
+    "did:ebsi:zqk4QzR8JMPDsPAdWhWJPLQ#hp2ffVYXOo-yVB156MEZ0t0xGMspujEuFk6Sp464ooM",
+    "did:ebsi:zqk4QzR8JMPDsPAdWhWJPLQ#ML7UeMuMJul4uxfQnb-0Z3JVU44pci0LYYfXD1ZbIow"
+  ],
+  "assertionMethod": [
+    "did:ebsi:zqk4QzR8JMPDsPAdWhWJPLQ#ML7UeMuMJul4uxfQnb-0Z3JVU44pci0LYYfXD1ZbIow"
+  ],
+  "capabilityInvocation": [
+    "did:ebsi:zqk4QzR8JMPDsPAdWhWJPLQ#hp2ffVYXOo-yVB156MEZ0t0xGMspujEuFk6Sp464ooM"
+  ]
+}

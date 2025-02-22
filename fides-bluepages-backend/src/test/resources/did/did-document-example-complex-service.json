@@ -1,0 +1,18 @@
+{
+  "exampleFrom": "https://community.blockcerts.org/t/service-endpoint-for-blockcerts-in-w3c-did-document/3597",
+
+
+  "@context": "<w3c did page>",
+  "id": "did:example:123456789abcdefghi",
+  "service": [
+    {
+      "id": "did:example:123456789abcdefghi#blockcerts",
+      "type": "CredentialService",
+      "serviceEndpoint": {
+        "url": "https://example.org/blockcerts/verify?certificateId=abcdef123456",
+        "description": "MIT BlockCerts Verification Service",
+        "serviceType": "Blockcerts"
+      }
+    }
+  ]
+}
