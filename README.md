@@ -29,6 +29,13 @@ different jurisdictions. How can organizations easily find out if their trading 
 is supporting eInvoicing, if so which methods, transport mechanisms etc. [More info
 about the eInvoicing use case](use-case-discovery.md)
 
+For eInvoicing, FIDES Blue Pages utilizes a proposed service endpoint schema within DID documents 
+that enables organizations to express their accepted eInvoice formats and available transport 
+methods in a standardized way. This schema allows for detailed declaration of transport types 
+(HTTP, PEPPOL, etc.), supported document specifications (UBL 2.1, EN 16931, etc.), and the 
+specific endpoints for each method, facilitating automated discovery and interoperability 
+between trading partners. [More details on the eInvoicing service endpoint schema](service_endpoint_einvoice.md)
+
 FIDES Blue Pages should be considered as an example of a "federated catalog" or
 "federated registry". Kind of a "Decentralized Google Business Registry". It
 makes use of Decentralized Identifiers and Verifiable Credentials which allows
