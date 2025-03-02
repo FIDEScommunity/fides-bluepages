@@ -27,7 +27,7 @@ involved in international trade B2B, B2C or B2G processes.
 The initiative experiment focuses on the use case of eInvoicing across
 different jurisdictions. How can organizations easily find out if their trading partner
 is supporting eInvoicing, if so which methods, transport mechanisms etc. [More info
-about the eInvoicing use case](javascript:void(0)).
+about the eInvoicing use case](use-case-discovery.md)
 
 FIDES Blue Pages should be considered as an example of a "federated catalog" or
 "federated registry". Kind of a "Decentralized Google Business Registry". It

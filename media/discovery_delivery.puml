@@ -1,0 +1,89 @@
+@startuml
+participant "ERP System A" as ERP_A
+participant "Organizational Wallet\nA (OWA)" as OWA_A
+participant "Blue pages" as BP
+participant EBSI
+participant "Organizational Wallet\nB (OWB)" as OWB_B
+participant "ERP System B" as ERP_B
+autonumber
+== DID Resolution and Verification ==
+ERP_A -> BP: Search for DID of Party\nB using Chamber of commerce number (Blue Pages API)
+BP -> BP: Select correct match using\nidentifiers (trading name, RSIN, CoC etc.)
+BP -> ERP_A: return DID identifier
+
+ERP_A -> OWA_A: Verify data party B
+OWA_A -> EBSI : Resolve DID document of Party B
+return
+OWA_A -> OWA_A: Resolve OWB service endpoint from DID
+OWA_A -> OWB_B: Verify that OWB is the\ncontroller of DID of Party B
+return
+OWA_A -> OWA_A: Check tax and commercial linked\nverifiable credentials\nof Party B
+OWA_A -->     : Verify linked trust credentials
+OWA_A -->     : Verify revocation status of credentials
+OWA_A -> OWA_A: Create connection record of wallet B
+OWA_A --> ERP_A: return verified data of legal entity B
+ == proof of authorization to represent legal entity ==
+ ERP_A -> ERP_A: out of band proof
+== eInvoice Creation ==
+ERP_A -> ERP_A: create customer using \nverified data of legal entity B
+ERP_A -> ERP_A: Create eInvoice
+ERP_A -> OWA_A: Seal the eInvoice using X509\nQSeal certificate of Party A
+return
+note over ERP_A, BP
+Option 1: no DID information of party A is enclosed
+
+Option 2: DID document of party A is part of
+subject Alternative Name in the X509 certicate meta data
+
+Option 3: DID document of party A is part of UBL extension
+end note
+
+== eInvoice Sending (Peppol or HTTP) ==
+alt Peppol delivery
+    ERP_A -> ERP_B: Send eInvoice to Peppol endpoint in DID document of Party B
+else email
+
+else HTTP POST using access_token_party_A
+ERP_A -> ERP_B: Send signed eInvoice to service endpoint of Party B \nAuthorization: Bearer <<access_token_party_A>>
+    ERP_B -> OWB_B: Send verification request to\neInvoice service endpoint of OWB_B
+    OWB_B -> EBSI: Resolve DID document of\nParty A from access_token issuer\n(relies on DNS + /did/.well-known)
+    return
+    OWB_B -> OWB_B: Check tax and commercial\nlinked verifiable credentials\nof Party A
+    OWB_B -->     : Verify linked trust credentials
+    OWB_B -->     : Verify revocation status\nof credentials
+    OWB_B -> OWB_B: Create connection record\nfor OWA_A
+    OWB_B --> ERP_A: ACK
+else HTTP POST using access_token_party_B
+    ERP_A -> OWB_B: Send authotization request to eInvoice service endpoint of OWB_B
+    OWB_B -> EBSI: Resolve DID document of\nParty A from authorization request
+    return
+    OWB_B -> OWB_B: Check tax and commercial\nlinked verifiable credentials\nof Party A
+    OWB_B -->     : Verify linked trust credentials
+    OWB_B -->     : Verify revocation status\nof credentials
+    OWB_B -> OWB_B: Create connection record\nfor OWA_A
+    OWB_B --> ERP_A: access_token_party_B
+    ERP_A -> ERP_B: Send signed eInvoice to service endpoint of Party B \nAuthorization: Bearer <<access_token_party_B>>
+end
+
+== eInvoice Verification and Acknowledgement ==
+ERP_B -> ERP_B: Verify semantic content\nof the eInvoice
+ERP_B -> OWB_B: Verify signature\nand integrity of eInvoice
+alt No DID document information
+    OWB_B -> BP: search for match
+    return
+    OWB_B -> EBSI: Resolve DID document\nof Party A
+    return
+else DID in SAN of QSeal X509 certificate
+    OWB_B -> OWB_B: Verify QSeal certificate\nand root CA in EU trust list
+    OWB_B -> EBSI: Resolve DID document\nof Party A
+    return
+else DID UBL extension
+    OWB_B -> EBSI: Resolve DID document\nof Party A
+    return
+end
+    OWB_B -->     : Verify linked trust credentials
+    OWB_B -->     : Verify revocation status of credentials
+OWB_B -> ERP_B: timestamp\nreceived eInvoice
+ERP_B -> ERP_A: Send acknowledgment (receipt) of eInvoice
+
+@enduml
