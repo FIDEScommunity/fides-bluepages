@@ -1,0 +1,10 @@
+services:
+  fides_bluepages-db:
+    image: mysql:latest
+    environment:
+      - 'MYSQL_DATABASE=fides_bluepages'
+      - 'MYSQL_PASSWORD=my_password'
+      - 'MYSQL_ROOT_PASSWORD=my_password'
+      - 'MYSQL_USER=fides_bluepages_user'
+    ports:
+      - '3311:3306'
