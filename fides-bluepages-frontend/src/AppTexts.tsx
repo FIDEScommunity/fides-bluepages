@@ -1,3 +1,5 @@
+import React from 'react';
+
 export interface AppTexts {
     appName: {
         displayName: string;
@@ -91,7 +93,16 @@ export interface AppTexts {
         trustedIssuersList: {
             title: string;
             subTitle: string;
-        }
+        },
+        introduction: {
+            title: string;
+            intro: string;
+        },
+        architecture: {
+            title: string;
+            subTitle: string;
+            description: string;
+        },
     }
 }
 
@@ -185,9 +196,45 @@ const getAppTextsEn = (): AppTexts => {
             trustedIssuersList: {
                 title: 'Trusted issuers',
                 subTitle: 'The following issuers are trusted by the Fides Blue Pages.'
-            }
-
-
+            },
+            introduction: {
+                title: 'About Blue Pages',
+                intro: '<p>FIDES Blue Pages is the result of an experimental project by Dutch Tax Office, Unifiedpost, Dutch Chamber of Commerce, Credenco and FIDESLabs.</p> ' +
+                       '<p>It allows you to find verifiable, up to date information about organizations that you want to do business with. The data is based on what trusted ' +
+                        '3rd parties (“Digital Identity Anchors” and “Trusted Issuers”) say about the organizations, combined with information that organizations publish' +
+                        'about themselves (“Self Descriptions”). It allows you to be confident that you are dealing with trustworthy organizations and provides machine' +
+                        'readible information about how to digitally interact with the organization. This includes information about various organizational identifiers,' +
+                        'cryptographic key materials (needed for communication) and all kinds of service end points. For instance for sending and receiving eInvoices or' +
+                        'all kinds of other documents involved in international trade B2B, B2C or B2G processes.</p>' +
+                        '<p>The initiative experiment focuses on the use case of eInvoicing across different jurisdictions. How can you easily find out if your trading partner' +
+                        'is supporting eInvoicing, if so which methods, transport mechanisms etc. More info about the eInvocing use case.</p>' +
+                        '<p>FIDES Blue Pages should be considered as an example of a “federated catalog” or “federated registry”. Kind of a “Decentralized Google Business' +
+                        'Registry”. It makes use of <strong>Decentralized Identifiers</strong> and <strong>Verifiable Credentials</strong> which allows organizations to maintain their own “public ' +
+                        'profile” in new types of tooling which are called “organizational wallets”. The ”federated catalog architecture” in combination with DID’s and ' +
+                        'VC\’s may also be used for different type of catalogs, registries or Identity Resolvers. For instance a catalog that resolves products. More ' +
+                        'information about the architecture.</p>' +
+                        '<p>FIDES Bluepages crawls the DID documents of organizations and displays if the mapped verifible credentials are valid and issued by <strong>Trusted Issuers</strong>. Blue Pages uses this <0>list of trusted issuers per credential type</0> to deisplay if data can be considered trusted.</p>' +
+                        '<p>Any organization can be added to FIDES Bluepages. From that moment on the organization can update their profille using  any compliant “organizational wallet” tooling. Please check this page for steps how to register an organization in Blue Pages.</p>' +
+                        '<p>Organizational wallets or any kind of other tools can interact with Blue Pages via an <1>API interface.</1></p>' +
+                        '<p>FIDES Bluepages is an open source project. Details can be found in a public <2>Github repository</2>. Feedback and contributions are welcome.</p> ' +
+                        '<p>For any other information or questions please send a mail to info@fides.community</p>'
+            },
+            architecture: {
+                title: 'Architecture',
+                subTitle: 'The following diagram shows the high-level architecture of the solution.',
+                description: '<p>The solution consists of three parts, the Blue Pages Frontend, Blue Pages Backend and a number of DID Crawlers.</p> ' +
+                    '<p>The Blue Pages Frontend will be used by representatives of legal entities to search for veriable information about other legal entities. ' +
+                    'For instance to search for Chamber of Commerce information of other legal entities or to verify the IBAN number of the legal entity. ' +
+                    'The solution can be extended to other type of information, such as GS1 identifiers, LEI identifier, addresses etc. This concept ' +
+                    'could be considered as a decentralized Google business catalog. </p>' +
+                    '<p>The Blue Pages Backend contains the business logic of the Blue Pages. It provides the functionality for storing and retrieving ' +
+                    'veriable information. Furthermore an API is implemented, that allows parties to register new DIDs and search for information.</p>' +
+                    '<p>The DID Crawlers provide functionality for crawling particular types of DIDs. The Web DID crawlers will be able to crawl ' +
+                    'the Linked Verifiable Presentations and other service endpoints from Web DIDs that have been registered in the Blue Pages. ' +
+                    'The EBSI DID crawlers have the possibility to retrieve information from the EBSI DID Registry, in which case registration of DIDs ' +
+                    'is not necessary. The crawlers retrieve the information from the Linked Verifiable Presentation and will also store the DIDs from ' +
+                    'the organizations that issued the credential(s), which can then be crawled again for further information. </p>'
+            },
         }
     } as AppTexts;
 };

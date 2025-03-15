@@ -7,7 +7,20 @@ import { Provider } from 'react-redux';
 import { store } from './state';
 import AuthenticationStateHandler from './components/organisms/AuthenticationStateHandler';
 import { createBrowserRouter, Route, RouterProvider, Routes } from 'react-router-dom';
-import { About, AboutMenuLayout, AuthenticationProvider, DidAdd, DidAddCompleted, DidAddPreview, DidDetail, DidList, I18n, Loading, Login, MainMenuLayout } from './components';
+import {
+    AboutMenuLayout, Architecture,
+    AuthenticationProvider,
+    DidAdd,
+    DidAddCompleted,
+    DidAddPreview,
+    DidDetail,
+    DidList,
+    I18n,
+    Introduction,
+    Loading,
+    Login,
+    MainMenuLayout
+} from './components';
 import { configureAxiosDefaults } from './AxiosConfig';
 import { PrimeReactProvider } from 'primereact/api';
 import 'primereact/resources/primereact.min.css';
@@ -51,7 +64,8 @@ function App() {
                                 <Route path="/search" element={<DidList/>}/>
                             </Route>
                             <Route path="/about" element={<AboutMenuLayout/>}>
-                                <Route path="p1" element={<About/>}/>
+                                <Route path="introduction" element={<Introduction/>}/>
+                                <Route path="architecture" element={<Architecture/>}/>
                                 <Route path="trustedIssuers" element={<TrustedIssuerListList/>}/>
                             </Route>
                         </Routes>

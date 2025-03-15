@@ -1,8 +1,6 @@
-export interface TrustedIssuerListDid {
-    did: string;
-}
+import { Did } from './Did';
 
 export interface TrustedIssuerList {
     credentialType: string;
-    trustedDids: TrustedIssuerListDid[];
+    trustedDids: Did[];
 }

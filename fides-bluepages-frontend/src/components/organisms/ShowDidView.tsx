@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { FC } from 'react';
 import { Credential, Did, DidService } from '../../state';
-import { ClipboardCopyElement, JsonFormattedView, OCard, TextWithExternalLink, TextWithLabel } from '../molecules';
+import { ClipboardCopyElement, OCard, ServiceEndpointFormattedView, TextWithExternalLink, TextWithLabel } from '../molecules';
 import { CredentialStatusBadge } from '../molecules/CredentialStatusBadge';
 import { Image } from 'primereact/image';
 import { Button } from 'primereact/button';
@@ -45,8 +45,8 @@ export const ShowDidView: FC<ShowServicesViewProps> = (props) => {
                 <TextWithLabel label="Service Id" value={service.serviceId}/>
                 {(service.serviceType !== undefined) && (<TextWithLabel label={service.serviceTypeLabel} value={service.serviceType}/>)}
                 {(service.serviceTypeJson !== undefined) && (<TextWithLabel label={service.serviceTypeLabel} value={service.serviceTypeJson}/>)}
-                {(service.serviceEndpoint !== undefined) && (<TextWithLabel label={service.serviceEndpointLabel} value={<TextWithExternalLink link={service.serviceEndpoint}/>}/>)}
-                {(service.serviceEndpointJson !== undefined) && (<TextWithLabel label={service.serviceEndpointLabel} value={<JsonFormattedView value={service.serviceEndpointJson}/>}/>)}
+                {(service.serviceEndpoint !== undefined) && (<TextWithLabel label={service.serviceEndpointLabel} value={<ServiceEndpointFormattedView serviceType={service.serviceType} value={service.serviceEndpoint}/>}/>)}
+                {(service.serviceEndpointJson !== undefined) && (<TextWithLabel label={service.serviceEndpointLabel} value={<ServiceEndpointFormattedView serviceType={service.serviceType} value={service.serviceEndpointJson}/>}/>)}
             </OCard>
         } else {
             return showCredentials(service.credentials);
@@ -56,9 +56,9 @@ export const ShowDidView: FC<ShowServicesViewProps> = (props) => {
     return (
         <div className={props.className}>
             <div className="flex justify-content-between align-items-start">
-                <div className="flex align-items-center">
+                <div className="flex md:align-items-center flex-column md:flex-row">
                     {(props.did?.logo?.value?.length && props.did?.logo?.value?.length > 0) && (
-                        <Image src={props.did?.logo?.value} alt="Logo" width="120" className="m-2"/>
+                        <Image src={props.did?.logo?.value} alt="Logo" width="120" className="m-0 mb-2 md:m-2"/>
                     )}
                     <div>
                         <div className="text-3xl">{props.did?.title?.value}</div>

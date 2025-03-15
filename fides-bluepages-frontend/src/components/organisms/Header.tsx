@@ -32,7 +32,7 @@ export const Header: React.FC<Props> = (props) => {
                     </div>
                     <div className="flex flex-end">
                         <div className="mr-2 hidden md:block"><Button label={t('screens.header.registerOrganization')} link onClick={() => navigation('/did/add')}/></div>
-                        <div className="mr-2 hidden md:block"><Button label={t('screens.header.about')} link onClick={() => navigation('/about')}/></div>
+                        <div className="mr-2 hidden md:block"><Button label={t('screens.header.about')} link onClick={() => navigation('/about/introduction')}/></div>
                         <div className="mr-2 block md:hidden"><Button icon="pi pi-bars" link onClick={() => {
                             dispatch(showMenu(true))
                         }}/></div>

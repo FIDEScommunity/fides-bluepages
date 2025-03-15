@@ -11,8 +11,8 @@ export const AboutMenuLayout = () => {
             <ContentContainer>
                 <Header/>
                 <ToastContainer/>
-                <BodyContainer className="flex grid-nogutter">
-                    <AboutMenu className="hidden md:block pl-0 mr-4 col-2"/>
+                <BodyContainer className="flex grid-nogutter ml-4 md:ml-2 m-4">
+                    <AboutMenu className="hidden md:block pl-0 ml-0 md:pr-2 col-0 md:col-2"/>
                     <div className="col-12 md:col-10">
                         <Outlet/>
                     </div>
@@ -29,9 +29,9 @@ const Root = styled.div`
     width: 100%;
 `;
 const BodyContainer = styled.div`
-    padding-top: 20px;
-    padding-right: 20px;
-    padding-left: 20px;
+    //padding-top: 20px;
+    //padding-right: 20px;
+    //padding-left: 20px;
 `;
 const ContentContainer = styled.div`
     width: 100%;

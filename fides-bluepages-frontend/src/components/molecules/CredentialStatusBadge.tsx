@@ -51,7 +51,7 @@ export const CredentialStatusBadge: React.FC<CredentialStatusBadgeProps> = (prop
                 </div>
             </Tooltip>
 
-            <div className={"p-1 text-white font-bold custom-tooltip-btn" + controlName} data-pr-position="left" style={{borderRadius: '4px', backgroundColor: getColor()}}>{props.status}</div>
+            <div className={"p-1 text-white font-bold custom-tooltip-btn" + controlName} data-pr-position="left" style={{borderRadius: '4px', backgroundColor: getColor(), minWidth: '55px'}}>{props.status}</div>
         </>
     );
 };

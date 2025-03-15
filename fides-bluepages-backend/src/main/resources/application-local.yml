@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: webwallet-backend
+
+  datasource:
+    url: jdbc:mysql://localhost:3311/fides_bluepages
+    username: root
+    password: my_password
+  flyway:
+    url: jdbc:mysql://localhost:3311/fides_bluepages
+    user: root
+    password: my_password
+    create-schemas: true
+  security.oauth2.resourceserver.jwt.issuer-uri: https://iam.acc.credenco.com/realms/fides
+  docker:
+    compose:
+      enabled: true
+      lifecycle-management: start_only
+  threads:
+    virtual:
+      enabled: true
+  jpa:
+    show-sql: false
+management:
+  server:
+    port: 9189
+server:
+  port: 8089
+logging:
+  level:
+    community.fides: DEBUG
+    community.fides.bluepages:
+      backend:
+        service:
+          ExclusiveLockService: INFO
+
+externalServices:
+  organizational-wallet:
+    apiKey: tsh7ugwBfY3a1fE90w9aWnwg90A04
+    apiBaseUrl: http://localhost:8088/api
+
+crawler:
+  ebsi-api-crawler-enabled: false

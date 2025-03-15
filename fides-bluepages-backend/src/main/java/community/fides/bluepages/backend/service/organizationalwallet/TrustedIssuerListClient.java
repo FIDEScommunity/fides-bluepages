@@ -1,6 +1,6 @@
 package community.fides.bluepages.backend.service.organizationalwallet;
 
-import community.fides.bluepages.backend.service.organizationalwallet.dto.TrustedIssuerListDto;
+import community.fides.bluepages.backend.service.organizationalwallet.dto.TrustedIssuerListOwDto;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -16,8 +16,8 @@ public class TrustedIssuerListClient {
     }
 
 
-    public List<TrustedIssuerListDto> getTrustedIssuers() {
-        final TrustedIssuerListDto[] response = organizationalWalletRestTemplate.getForEntity("/trustedissuerlist", TrustedIssuerListDto[].class).getBody();
+    public List<TrustedIssuerListOwDto> getTrustedIssuers() {
+        final TrustedIssuerListOwDto[] response = organizationalWalletRestTemplate.getForEntity("/trustedissuerlist", TrustedIssuerListOwDto[].class).getBody();
         return (response == null) ? List.of() : List.of(response);
     }
 }

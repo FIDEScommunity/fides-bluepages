@@ -1,14 +1,17 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DataTable } from 'primereact/datatable';
 import { useSelector } from 'react-redux';
 import { getTrustedIssuerList, trustedIssuerListSelector } from '../../../state/slices/trustedissuerlist';
-import { TrustedIssuerList, useAppDispatch } from '../../../state';
+import { Did, TrustedIssuerList, useAppDispatch } from '../../../state';
 import { Column } from 'primereact/column';
 import { ClipboardCopyElement } from '../../molecules';
+import { Button } from 'primereact/button';
+import { useNavigate } from 'react-router-dom';
 
 export const TrustedIssuerListList: FC = () => {
     const dispatch = useAppDispatch();
+    const navigation = useNavigate();
     const {t} = useTranslation();
 
     useEffect(() => {
@@ -18,16 +21,22 @@ export const TrustedIssuerListList: FC = () => {
 
     let trustedIssuerListState = useSelector(trustedIssuerListSelector);
 
-    const showDids = (trustedIssuer: TrustedIssuerList) => {
-        if ((trustedIssuer.trustedDids === undefined) || (trustedIssuer.trustedDids.length === 0)) {
-            return (<div>-</div>)
+    const flattenedDids = useMemo(() => {
+        function getDids(trustedIssuer: TrustedIssuerList): { credentialType: string; did: Did; }[] {
+            return trustedIssuer.trustedDids.flatMap(did => {
+                return {credentialType: trustedIssuer.credentialType, did}
+            });
         }
-        return (<div>
-            {trustedIssuer.trustedDids.map(did => {
-                return (<ClipboardCopyElement copyValue={did.did}>{did.did}</ClipboardCopyElement>)
-            })
-            }
-        </div>)
+
+        return trustedIssuerListState.list.flatMap(trustedIssuer => getDids(trustedIssuer));
+    }, [trustedIssuerListState.list]);
+
+
+    const showIssuer = (flattenedDid: { credentialType: string; did: Did; }) => {
+        return (<Button className="p-0 text-color" label={flattenedDid.did.title?.value} link onClick={() => navigation('/did/' + flattenedDid.did.externalKey)}/>)
+    }
+    const showDid = (flattenedDid: { credentialType: string; did: Did; }) => {
+        return (<ClipboardCopyElement copyValue={flattenedDid.did.did}>{flattenedDid.did.did}</ClipboardCopyElement>)
     }
     return (
         <div>
@@ -36,9 +45,10 @@ export const TrustedIssuerListList: FC = () => {
                 <p>{t('screens.trustedIssuersList.subTitle')}</p>
             </div>
 
-            <DataTable value={trustedIssuerListState.list} tableStyle={{minWidth: '50rem'}}>
+            <DataTable value={flattenedDids} tableStyle={{minWidth: '50rem'}}>
                 <Column field="credentialType" header="Credential type"></Column>
-                <Column header="Trusted dids" body={showDids}></Column>
+                <Column header="Issuer" body={showIssuer}></Column>
+                <Column header="Identifier" body={showDid}></Column>
             </DataTable>
         </div>
     );
