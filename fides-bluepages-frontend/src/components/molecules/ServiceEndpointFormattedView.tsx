@@ -71,3 +71,4 @@ export const ServiceEndpointFormattedView: React.FC<ServiceEndpointViewProps> = 
         )
     }
 };
+

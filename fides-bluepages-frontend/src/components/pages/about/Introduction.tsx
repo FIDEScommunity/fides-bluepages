@@ -12,6 +12,7 @@ export const Introduction: FC = () => {
                     <a className='underline' href="/about/trustedIssuers">Trusted Issuers</a>
                     <a className='underline' href="/api/public/swagger-ui">API interface</a>
                     <a className='underline' href="https://github.com/FIDEScommunity/fides-bluepages">Github repository</a>
+                    <a className='underline' href="/about/eInvoicing">eInvoicing</a>
                 </Trans>
             </div>
         </div>

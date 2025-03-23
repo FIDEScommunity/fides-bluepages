@@ -21,6 +21,14 @@ export const AboutMenu: FC<AboutMenuProps> = (props) => {
             </li>
             <li>
                 <a className="p-ripple flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors w-full"
+                   href="/about/eInvoicing">
+                    <i className="pi pi-receipt mr-2"></i>
+                    <span className="font-medium">Use Case eInvoicing</span>
+                    <Ripple/>
+                </a>
+            </li>
+            <li>
+                <a className="p-ripple flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors w-full"
                    href="/about/architecture">
                     <i className="pi pi-objects-column mr-2"></i>
                     <span className="font-medium">Architecture</span>

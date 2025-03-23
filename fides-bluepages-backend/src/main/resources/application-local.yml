@@ -1,7 +1,4 @@
 spring:
-  application:
-    name: webwallet-backend
-
   datasource:
     url: jdbc:mysql://localhost:3311/fides_bluepages
     username: root
@@ -11,7 +8,6 @@ spring:
     user: root
     password: my_password
     create-schemas: true
-  security.oauth2.resourceserver.jwt.issuer-uri: https://iam.acc.credenco.com/realms/fides
   docker:
     compose:
       enabled: true
@@ -34,10 +30,87 @@ logging:
         service:
           ExclusiveLockService: INFO
 
-externalServices:
-  organizational-wallet:
-    apiKey: tsh7ugwBfY3a1fE90w9aWnwg90A04
-    apiBaseUrl: http://localhost:8088/api
-
 crawler:
   ebsi-api-crawler-enabled: false
+
+mock-organizational-wallet-config:
+  trustedIssuerList:
+    -
+      credentialType: KVKRegistration
+      trustedDids:
+        -
+          did: did:web:mijnkvk.acc.credenco.com:did:df63abc0-2cc9-49e5-b3f8-42a824ceb9a7
+    -
+      credentialType: VAT
+      trustedDids:
+        -
+          did: did:web:wallet.acc.credenco.com:did:bd064799-e498-4020-a427-1c50710d2ac0
+  verifiablePresentationStatus:
+    overallStatus: VALID
+    statusPerCredential:
+      ContactInfo:
+        verifiablePresentationStatus: VALID
+        policyResults:
+          -
+            policyName: "expired"
+            policyDescription: "Verifies that the credentials expiration date (`exp` for JWTs) has not been exceeded."
+            valid: true
+          -
+            policyName: 'not-before'
+            policyDescription: "Verifies that the credentials not-before date (for JWT: nbf, if unavailable: iat - 1 min) is correctly exceeded."
+            valid: true
+          -
+            policyName: "revoked_status_list"
+            policyDescription: "Verifies Credential Status"
+            valid: true
+          -
+            policyName: "signature"
+            policyDescription: "Checks a JWT credential by verifying its cryptographic signature using the key referenced by the DID in `iss`."
+            valid: true
+      KVKRegistration:
+        verifiablePresentationStatus: VALID
+        policyResults:
+          -
+            policyName: "expired"
+            policyDescription: "Verifies that the credentials expiration date (`exp` for JWTs) has not been exceeded."
+            valid: true
+          -
+            policyName: "not-before"
+            policyDescription: "Verifies that the credentials not-before date (for JWT: `nbf`, if unavailable: `iat` - 1 min) is correctly exceeded."
+            valid: true
+          -
+            policyName: "allowed-issuer"
+            policyDescription: "Checks that the issuer of the credential is present in the supplied list."
+            valid: true
+          -
+            policyName: "revoked_status_list"
+            policyDescription: "Verifies Credential Status"
+            valid: true
+          -
+            policyName: "signature"
+            policyDescription: "Checks a JWT credential by verifying its cryptographic signature using the key referenced by the DID in `iss`."
+            valid: true
+      VAT:
+        verifiablePresentationStatus: VALID
+        policyResults:
+          -
+            policyName: "expired"
+            policyDescription: "Verifies that the credentials expiration date (`exp` for JWTs) has not been exceeded."
+            valid: true
+          -
+            policyName: "not-before"
+            policyDescription: "Verifies that the credentials not-before date (for JWT: `nbf`, if unavailable: `iat` - 1 min) is correctly exceeded."
+            valid: true
+          -
+            policyName: "allowed-issuer"
+            policyDescription: "Checks that the issuer of the credential is present in the supplied list."
+            valid: true
+          -
+            policyName: "revoked_status_list"
+            policyDescription: "Verifies Credential Status"
+            valid: true
+          -
+            policyName: "signature"
+            policyDescription: "Checks a JWT credential by verifying its cryptographic signature using the key referenced by the DID in `iss`."
+            valid: true
+

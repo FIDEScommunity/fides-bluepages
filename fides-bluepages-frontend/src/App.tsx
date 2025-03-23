@@ -30,6 +30,7 @@ import 'primeflex/primeflex.scss';
 import './App.css';
 import { Home } from './components/pages/Home';
 import { TrustedIssuerListList } from './components/pages/about/TrustedIssuerListList';
+import { UseCaseEInvoicing } from './components/pages/about/UseCaseEInvoicing';
 
 
 function App() {
@@ -65,6 +66,7 @@ function App() {
                             </Route>
                             <Route path="/about" element={<AboutMenuLayout/>}>
                                 <Route path="introduction" element={<Introduction/>}/>
+                                <Route path="eInvoicing" element={<UseCaseEInvoicing/>}/>
                                 <Route path="architecture" element={<Architecture/>}/>
                                 <Route path="trustedIssuers" element={<TrustedIssuerListList/>}/>
                             </Route>
