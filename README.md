@@ -63,6 +63,10 @@ Github repository](javascript:void(0)). Feedback and contributions are welcome.
 
 For any other information or questions please send a mail to info@fides.community
 
+## Getting started
+If you would like to run the FIDES Bluepages locally, follow the instructions at [Getting Started](getting-started.md).
+
+## License
 Copyright [2025] [Credenco B.V.]
 
 Licensed under the Apache License, Version 2.0 (the "License");
