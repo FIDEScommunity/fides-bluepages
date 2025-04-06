@@ -56,3 +56,6 @@ npm start
 Finally open the following URL in your browser:
 
 [FIDES Bluepages](http://localhost:3000)
+
+## Bluepages Configuration
+The FIDES Bluepages will be started with default settings that have been used by the e-Invoicing use case. However, it can be fully customized. For all configuration options see [Configuration](configuration.md).
