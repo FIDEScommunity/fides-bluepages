@@ -1,0 +1,429 @@
+@startuml
+' Toggle for showing details
+!define DETAILED_VIEW 1
+autonumber
+
+actor "Legal Representative" as u
+boundary "Wallet" as w
+actor "Operator" as o
+
+box "Browser SPA" #LightGrey
+   entity "idm App" as b
+end box
+box #LightBlue
+   entity "v5 SAS-service" as srv
+   entity "Flowable BPMN" as bpmn
+end box
+box #LightPink
+   entity "CZERTAINLY CSC" as csc #lightgray
+   entity "HSM" as hsm #lightgray
+end box
+
+title Wallet Registration and Document Sealing Process
+
+== Phase 1: Wallet Registration ==
+u-->w
+note right: get QSeal
+
+w -> w: Generate key pair
+note right: Private key *) stored securely in wallet\ntodo: add wallet attestation check\nalso check type of key
+
+w -> bpmn: POST /identity/v1/registration
+!if (DETAILED_VIEW==1)
+note right of srv
+**<color:red>NO AUTHORIZATION**
+Content-Type: application/json
+
+==decoded wallet_jwt_token (in body)==
+"signature algorithm",
+"JWK": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMI..."
+{
+  "didDocument": "did:web:wallet.company.com",
+  "legalEntity": {
+    "taxRegistrationNumber": "BE0123456789",
+    "businessRegistrationNumber": "0123.456.789",
+    "lei": "213800ABCDEFGHIJK123",
+    "companyName": "Example Corp Ltd",
+    "jurisdiction": "BE"
+    "country":"BE",
+  },
+  "signatory": {
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe@example.com",
+  },
+  "referralPartnerId":"1234567-12434",
+  "callbackUrl": "https://wallet.company.com/api/callbacks/registration"
+}
+Signature: private_key_signature *)
+end note
+!endif
+bpmn -> bpmn: Start BPMN process
+bpmn -> bpmn: Validate payload signature\nusing provided public key
+
+bpmn --> :call universal resolver\nhttps://api.godiddy.com/#tag/Universal-Resolver
+
+bpmn --> w: 202 Accepted return onboarding request ID
+!if (DETAILED_VIEW==1)
+note right of w
+{
+  "onboardingRequestId": "obr_abc123def456",
+  "redirectUrl": "https://sas.example.com/onboarding/obr_abc123def456",
+  "status": "pending_validation",
+  "message": "Registration initiated. Redirect legal representative to provided URL."
+}
+end note
+!endif
+
+w -> b: Redirect to approval URL
+note right: Wallet redirects legal representative\nto QTSP approval process
+
+u --> b: upload company registration
+b -> bpmn: post company document
+bpmn -> srv: request sign request
+!if (DETAILED_VIEW==1)
+note right of b
+Authorization: <<IDM backoffice client token>>
+{
+  acr_values=urn:btx:L100 (nullable),
+  message_identifier_id=<<process_id wallet registration>>,
+  message_hash=<<message_hash>>, (the hash of the payload (wallet_jwt_token))
+  <color:red>optional: user_sub=<user_sub>,
+  message_pre_sign: <message>,
+  message_post_sign: <message>
+}
+end note
+!endif
+srv --> bpmn: return
+
+bpmn --> b: redirect sign request\n/links/bqid/sign?code=a2713474-2976-4c2b-a940-24869a247280
+
+b->b: render QR code\nsign request\n
+
+u->u: download app
+u --> srv: register mobile device\nproof identity (natural person)\nliveness check\nbind mobile to person
+
+u --> b: scan sign request QR
+
+
+o --> bpmn:Verify and approve
+bpmn --> : provision entityID
+
+== phase 2: provision seals and store concent ==
+
+bpmn -> srv: create credential\nPOST /api/v5/seal-requests/credentials
+!if (DETAILED_VIEW==1)
+note right of srv
+Content-Type: application/json
+Authorization: <<IDM backoffice client token>>
+
+{
+   "consentProof" : "signed payload by user key"
+   "wallet_jwt_token" : <<wallet_jwt_token>>
+   "entityId" : <<entityId>>
+   <color:red>NB: consentproof and wallet_jwt_token are
+   <color:red>linked using a hash
+}
+end note
+!endif
+
+srv -> srv: validate wallet authorization token
+srv -> srv: validate consent proof jwt
+srv->srv: <color:red>generate uuid as new consentId
+srv -> srv: calculate hash of <<wallet_jwt_token>>\nmust be equal to hash in consent proof jwt
+
+srv -> csc: https://signserver.acc.qts.gcpeuw1.upst.xyz/management/v1/credentials/create
+
+!if (DETAILED_VIEW==1)
+note left of csc
+Authorization: Bearer jwt_token (signed by SAS service key)
+Content-Type: application/json
+
+{
+    "cryptoTokenName": "EntrustSAMCryptoToken-Internal",
+    "credentialProfileName": "long-term-seal",
+    <color:red>"userId": <<consentId>>,//to ensure end-to-end chain of consent (proof) + document
+    "signatureQualifier": "eu_eidas_qes",
+    "numberOfSignaturesPerAuthorization": 1,
+    "scal": 2,
+    "dn": "CN=Cokoli,O=3KeyCompany,2.5.4.97=VATBE-123456789,C=CZ",
+    "san": "",
+    "description": "no description"
+}
+end note
+!endif
+
+    csc -> srv: check JWT signature
+    srv --> csc:
+
+    csc -> hsm: create credential
+    hsm --> csc: return credentialId
+csc --> srv: return credentialId
+srv -> srv: record consent
+!if (DETAILED_VIEW==1)
+note right of srv
+    <color:red> describe the content of the consent record
+    - consentId
+    - credentialId
+    - didDocument
+    - (hash of wallet public key)
+    - entityId
+    - userId
+    - consentProof
+    - consent creation (today)
+    - consent expiration (today+1Y)
+    - consent status (active / expired / revoked)
+
+end note
+!endif
+
+srv->srv: register wallet
+!if (DETAILED_VIEW==1)
+note right of srv
+    <color:red> proposed table name: trusted_cloud_agent
+    - consentId
+    - credentialId
+    - didDocument
+    - (hash of wallet public key)
+    - entityId
+    - wallet public Key
+    - <<wallet_jwt_token>> (evidence)
+    - wallet registration creation (today)
+    - wallet status (valid) see ARF
+'https://eu-digital-identity-wallet.github.io/eudi-doc-architecture-and-reference-framework/2.4.0/architecture-and-reference-framework-main/#21-introduction
+end note
+!endif
+
+srv --> w:   https://wallet.company.com/api/callbacks/registration
+!if (DETAILED_VIEW==1)
+note right of w
+    <color:red>
+    -return credentialId
+
+end note
+!endif
+
+== Phase 3: Runtime Document Sealing ==
+--> w: ERP system or BTX\n request sealing
+note over w: also SignHash is required
+'https://fides-bluepages.acc.credenco.com/about/eInvoicing
+w -> w: retrieve credentialId\nof wallet
+
+w -> w: Create JWT payload
+!if (DETAILED_VIEW==1)
+note right of w
+{
+    "credentialID": "e70c0f63-de81-4183-8592-46c0700af509",
+    "signatureQualifier": "eu_eidas_qes",
+    "documents": [
+        {
+            "document": "....",
+            "signature_format": "P",
+            "conformance_level": "Ades-B",
+            "signAlgo": "1.2.840.113549.1.1.1",
+            "signAlgoParams": "",
+            "signed_envelope_property": "Certification"
+        }
+    ],
+    "operationMode": "S",
+    "validity_period": "60000",
+    "response_uri": "https://wallet-url/callback",
+    "clientData": "correlationID: 123",
+    "returnValidationInfo": false
+}
+end note
+!endif
+
+w -> w: Sign JWT with\nwallet private key
+
+w -> srv: POST /csc/v2/signatures/signDoc
+!if (DETAILED_VIEW==1)
+note right of srv
+Authorization: Bearer wallet_access_token
+Content-Type: application/json
+Signature: wallet_private_key_signature
+
+see above
+end note
+!endif
+
+srv -> srv: record sign request
+note right of srv: discuss cleanup of processed sign requests
+
+srv -> srv: Lookup public key\nfor credentialId in wallet client table
+alt <color:red>public key not found
+    srv --> w: 403 Forbidden
+    !if (DETAILED_VIEW==1)
+    note right of w
+    {
+      "error": "access_denied",
+      "error_description": "Wallet public key not found"
+    }
+    end note
+    !endif
+end
+srv -> srv: Verify link credentialId and wallet public key\nalt: Verify link credentialId and entityId
+alt <color:red>Invalid consent status
+    srv --> w: 403 Forbidden
+    !if (DETAILED_VIEW==1)
+    note right of w
+    {
+      "error": "unauthorized_client",
+      "error_description": "no consent for entity or Wallet key"
+    }
+    end note
+    !endif
+end
+srv -> srv: Validate JWT\nsignature
+alt <color:red>public key not found
+    srv --> w: 403 Forbidden
+    !if (DETAILED_VIEW==1)
+    note right of w
+    {
+      "error": "access_denied",
+      "error_description": "Invalid signature"
+    }
+    end note
+    !endif
+end
+srv -> srv: lookup consent for credentialId in consent table
+srv -> srv: Verify consent status
+alt <color:red>Invalid consent status
+    srv --> w: 403 Forbidden
+    !if (DETAILED_VIEW==1)
+    note right of w
+    {
+      "error": "unauthorized_client",
+      "error_description": "no active consent"
+    }
+    end note
+    !endif
+end
+
+'srv -> csc: POST /credentials/info\nVerify credential status
+'opt 200 OK
+'csc --> srv
+'!if (DETAILED_VIEW==1)
+'    note left of csc
+'200
+'{
+'  "credentialID": "e70c0f63-de81-4183-8592-46c0700af509"
+'}
+'    end note
+'    end opt
+'
+'    !endif
+
+
+alt <color:red>expired credentials
+    srv --> w: 403 Forbidden
+    !if (DETAILED_VIEW==1)
+    note right of w
+    {
+      "error": <<credenialError>>,
+      "error_description": <<credentialErrorDescription>>
+    }
+    end note
+    !endif
+end
+
+srv -> srv: Create JWT payload
+!if (DETAILED_VIEW==1)
+note right of srv
+{
+    "credentialID": "e70c0f63-de81-4183-8592-46c0700af509",
+    "signatureQualifier": "eu_eidas_qes",
+    "documents": [
+        {
+            "document": "....",
+            "signature_format": "P",
+            "conformance_level": "Ades-B",
+            "signAlgo": "1.2.840.113549.1.1.1",
+            "signAlgoParams": "",
+            "signed_envelope_property": "Certification"
+        }
+    ],
+    "operationMode": "S",
+    "validity_period": "60000",
+    "response_uri": "https://SAS-service/callback",
+    "clientData": "signRequestID: 456",
+    "returnValidationInfo": false
+}
+end note
+!endif
+
+srv -> srv: Sign SAS JWT with SAS private key\n<color:red>sub=<<consentId>>\n<color:red>scope=credential
+
+    srv -> csc: POST /csc/v2/signatures/signDoc
+    !if (DETAILED_VIEW==1)
+    note right of srv
+    Authorization: Bearer SAS JWT
+    Content-Type: application/json
+
+    see above
+    end note
+    !endif
+
+opt Asynchronous mode
+  srv --> w: 200 OK
+end opt
+opt <color:red>400,401,403,500 error
+csc-->srv:hans
+note right of srv
+  Enum: "invalid_request" "unauthorized_client"
+  "access_denied" "unsupported_response_type"
+  "invalid_scope" "server_error" "temporarily_unavailable"
+  "expired_token" "invalid_token"
+end note
+srv ->srv: update credentialError\ncredentialErrorDescription\nin sign request
+end opt
+    csc -> srv: check JWT signature
+    srv --> csc:
+    csc -> hsm: Forward sealing request
+    !if (DETAILED_VIEW==1)
+    note left of hsm
+    {
+      "entityId": "ent_xyz789abc123",
+      "documentHash": "sha256:abc123def456...",
+      "signatureFormat": "PAdES",
+      "certificateId": "cert_123456"
+    }
+    end note
+    !endif
+
+    hsm -> hsm: Perform cryptographic\nsigning operation
+    hsm --> csc: Sealed document/hash
+
+    csc --> srv: 200 OK
+    srv -> srv: update status of seal request
+
+    opt synchronous
+    srv --> w: 200 OK
+    !if (DETAILED_VIEW==1)
+    note right of w
+    {
+      "requestId": "req_seal_789123",
+      "signatures": [{
+        "signatureValue": "qualified_signature_data",
+        "certificateChain": ["certificate_chain"],
+        "timestamp": "2025-09-26T14:30:05Z"
+      }],
+      "sealedDocument": "base64_sealed_document", // if full document was sent
+      "status": "SUCCESS"
+    }
+    end note
+    !endif
+    else asynchronous
+    note right of w
+       - tmp store sealed document (in case of base64)
+       - tmp store signature (in case of hash)
+       - implement webhook
+       - implement a retry mechanism
+       - implement a lifecycle mechanism (delete after 24 hours)
+       - update status (check csc api documentation)
+       - for now: ON HOLD!!!
+    end note
+    end opt
+
+
+@enduml
