@@ -86,10 +86,20 @@ public class OpenIDProviderMetadataService {
 
     private Optional<String> getCredentialConfigurationIdForType(final String credentialDefinitionType, final OpenIDProviderMetadata openIDProviderMetadata) {
         final Optional<String> credentialConfigurationId = openIDProviderMetadata.getCredentialConfigurationsSupported().entrySet().stream()
-                .filter(entry -> entry.getValue().getCredentialDefinition().getType().contains(credentialDefinitionType))
+                .filter(entry -> hasType(entry.getValue(), credentialDefinitionType))
                 .map(entry -> entry.getKey())
                 .findFirst();
         return credentialConfigurationId;
+    }
+
+    private boolean hasType(final CredentialConfigurationSupported value, final String credentialDefinitionType) {
+        if ((value.getCredentialDefinition() != null) && (value.getCredentialDefinition().getType().contains(credentialDefinitionType))) {
+            return true;
+        }
+        if ((value.getVct() != null) && (value.getVct().contains(credentialDefinitionType))) {
+            return true;
+        }
+        return false;
     }
 
     private Map<String, AttributeDefinition> getAttributeDefinitions(CredentialConfigurationSupported credentialConfiguration) {

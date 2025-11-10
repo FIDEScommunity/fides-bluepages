@@ -1,15 +1,18 @@
 package community.fides.bluepages.backend.rest.api;
 
 import community.fides.bluepages.backend.domain.Did;
+import community.fides.bluepages.backend.domain.DidService;
 import community.fides.bluepages.backend.rest.api.dto.DidDto;
 import community.fides.bluepages.backend.rest.api.form.DidForm;
 import community.fides.bluepages.backend.rest.api.mapper.RestDidMapper;
 import community.fides.bluepages.backend.service.DidDocumentService;
+import community.fides.bluepages.backend.service.organizationalwallet.dto.VerifiablePresentationStatusResponse;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
@@ -19,11 +22,14 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedModel;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController()
 @RequestMapping("/api/public/did")
@@ -52,9 +58,10 @@ public class SearchApiController {
     @Operation(summary = "Find all dids based on the query parameters.")
     @GetMapping
     public PagedModel<DidDto> find(@RequestParam(value = "q", required = false, defaultValue = "") String searchText,
+                                   @RequestParam(value = "locale", required = false, defaultValue = "en-EN") String locale,
                                    @ParameterObject @PageableDefault(value = 10) Pageable pageable) {
         final Page<Did> items = didDocumentService.searchDids(searchText, pageable);
-        return new PagedModel<>(items.map(didMapper::from));
+        return new PagedModel<>(items.map(did -> didMapper.from(did, locale)));
     }
 
     @Operation(summary = "Add a Did to the Blue pages.")
@@ -67,4 +74,9 @@ public class SearchApiController {
         didDocumentService.addWhenNotExists(form.getDid());
     }
 
+    @Operation(summary = "Find a did and validate linked verifiable presentations")
+    @GetMapping("/{didId}/validations")
+    public DidDto getDidWithValidations(@PathVariable String didId, @RequestParam(value = "locale", required = false, defaultValue = "en-EN") String locale) {
+        return didDocumentService.getDidAndValidate(didId, locale);
+    }
 }

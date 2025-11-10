@@ -18,7 +18,7 @@ public class DidDto {
     private GenericAttribute subTitle1;
     private GenericAttribute subTitle2;
     private GenericAttribute logo;
-
+    private List<DidServiceDto> services;
 
     public static DidDto from(Did did) {
         return DidDto.builder()

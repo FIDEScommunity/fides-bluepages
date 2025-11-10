@@ -1,12 +1,18 @@
 package community.fides.bluepages.backend.service;
 
 import community.fides.bluepages.backend.domain.Did;
+import community.fides.bluepages.backend.domain.DidService;
 import community.fides.bluepages.backend.repository.DidRepository;
+import community.fides.bluepages.backend.rest.api.dto.DidDto;
+import community.fides.bluepages.backend.rest.api.mapper.RestDidMapper;
+import community.fides.bluepages.backend.service.crawler.Crawler;
+import community.fides.bluepages.backend.service.organizationalwallet.dto.VerifiablePresentationStatusResponse;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +26,10 @@ import org.springframework.stereotype.Service;
 public class DidDocumentService {
 
     private final DidRepository didRepository;
-
+    private final Crawler crawler;
+    private final DidStoreService didStoreService;
+    private final DidServiceVerifierService didServiceVerifierService;
+    private final RestDidMapper didMapper;
 
     public Page<Did> searchDids(final String searchText, final Pageable pageable) {
         var allSpecification = new ArrayList<Specification<Did>>();
@@ -39,6 +48,15 @@ public class DidDocumentService {
         final Specification<Did> orSpecification = didRepository.allOfOr(allSpecification);
         final Specification<Did> specification = orSpecification.and(didRepository.meetsTypeRequirements(true));
         return didRepository.findAll(specification, pageable);
+    }
+
+    public DidDto getDidAndValidate(final String didId, final String locale) {
+        final var didFromDb = didRepository.findDidByDid(didId).orElseThrow(() -> new IllegalArgumentException("Did not found"));
+        final var crawledDidDocument = crawler.crawlDidDocument(didFromDb.getDid()).orElseThrow(() -> new IllegalArgumentException("Did not found"));
+        final Did updatedDid = didStoreService.update(didFromDb.getId(), crawledDidDocument);
+        final Map<DidService, VerifiablePresentationStatusResponse> validationResults = didServiceVerifierService.validate(updatedDid);
+
+        return didMapper.from(updatedDid, locale, validationResults);
     }
 
     @Transactional
