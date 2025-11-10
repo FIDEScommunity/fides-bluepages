@@ -6,25 +6,35 @@ import community.fides.bluepages.backend.domain.Did;
 import community.fides.bluepages.backend.domain.DidService;
 import community.fides.bluepages.backend.rest.api.dto.DidDto;
 import community.fides.bluepages.backend.rest.webpublic.dto.GenericAttribute;
+import community.fides.bluepages.backend.service.organizationalwallet.dto.VerifiablePresentationStatusResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class RestDidMapper {
+    private final RestDidServiceMapper didServiceMapper;
     private final DisplayConfig displayConfig;
 
-    public DidDto from(Did did) {
-        return DidDto.builder()
+    public DidDto from(Did did, String locale) {
+        return from(did, locale, null);
+    }
+
+    public DidDto from(Did did, String locale, Map<DidService, VerifiablePresentationStatusResponse> validationResults) {
+        final var didDtoBuilder = DidDto.builder()
                 .did(did.getDid())
                 .title(getGenericAttribute(did, "title"))
                 .subTitle1(getGenericAttribute(did, "subTitle1"))
                 .subTitle2(getGenericAttribute(did, "subTitle2"))
-                .logo(getGenericAttribute(did, "logo"))
-                .build();
+                .logo(getGenericAttribute(did, "logo"));
+        if (validationResults != null) {
+            didDtoBuilder.services(didServiceMapper.from(getSortedServices(did.getServices()), locale, validationResults));
+        }
+        return didDtoBuilder.build();
     }
 
     private GenericAttribute getGenericAttribute(final Did did, final String attributeName) {
@@ -56,7 +66,13 @@ public class RestDidMapper {
                 .build()).orElse(null);
     }
 
-    public List<DidDto> from(List<Did> dids) {
-        return dids.stream().map(this::from).toList();
+    private List<DidService> getSortedServices(final List<DidService> services) {
+        return services.stream()
+                .sorted((o1, o2) -> displayConfig.getServiceDisplayOrder(o1.getServiceType()).compareTo(displayConfig.getCredentialDisplayOrder(o2.getServiceType())))
+                .toList();
+    }
+
+    public List<DidDto> from(List<Did> dids, String locale) {
+        return dids.stream().map(did -> from(did, locale)).toList();
     }
 }

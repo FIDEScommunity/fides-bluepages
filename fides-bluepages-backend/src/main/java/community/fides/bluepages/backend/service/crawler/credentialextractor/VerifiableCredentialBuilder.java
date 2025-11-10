@@ -9,6 +9,8 @@ import community.fides.bluepages.backend.service.crawler.credentialextractor.cre
 import community.fides.bluepages.backend.service.crawler.credentialextractor.credentialformatparser.CredentialMetaDataDto;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,7 +31,7 @@ public class VerifiableCredentialBuilder {
     private final List<CredentialFormatParser> credentialFormatParsers;
 
     @SneakyThrows
-    public Optional<Credential> extractCredential(final String vcJson) {
+    public Optional<Credential> extractCredential(final String vcJson, final List<String> disclosures) {
         final JsonNode jsonNode = objectMapper.readTree(vcJson);
         final Optional<CredentialMetaDataDto> credentialMetaData = getCredentialMetaData(jsonNode);
         if (credentialMetaData.isEmpty()) {
@@ -41,10 +43,40 @@ public class VerifiableCredentialBuilder {
         credential.setSubjectDid(credentialMetaData.get().getSubjectDid());
         credential.setLastUpdated(LocalDateTime.now());
         credential.setStatus(CredentialStatus.UNCHECKED);
-        credential.setAttributes(StreamSupport.stream(Spliterators.spliteratorUnknownSize(jsonNode.get("vc").get("credentialSubject").fields(), Spliterator.ORDERED), false)
-                                         .flatMap(entry -> buildAttributeList(entry, credential, "").stream())
-                                         .toList());
+        credential.setAttributes(getAttributes(jsonNode, credential, disclosures));
         return Optional.of(credential);
+    }
+
+    private @org.jetbrains.annotations.NotNull List<CredentialAttribute> getAttributes(JsonNode jsonNode, Credential credential, List<String> disclosures) {
+        var credentialNode = jsonNode;
+        if (credentialNode.has("vc")) {
+            credentialNode = credentialNode.get("vc").get("credentialSubject");
+        }
+        final var attributes = StreamSupport.stream(Spliterators.spliteratorUnknownSize(credentialNode.fields(), Spliterator.ORDERED), false)
+                .flatMap(entry -> buildAttributeList(entry, credential, "").stream())
+                .toList();
+        final var disclosedAttributes = disclosures.stream().map(disclosure -> createAttributeFromDisclosure(credential, disclosure)).toList();
+        final var result = new ArrayList<>(attributes);
+        result.addAll(disclosedAttributes);
+        return result;
+    }
+
+    private CredentialAttribute createAttributeFromDisclosure(final Credential credential, final String disclosue) {
+        final var decodedDisclosure = new String(Base64.getDecoder().decode(disclosue));
+        String[] parts = decodedDisclosure
+                            .replace("[", "")
+                            .replace("]", "")
+                            .replace("\"", "")
+                            .split(",");
+
+        String attribute = parts[1].trim();
+        String value = parts[2].trim();
+        return CredentialAttribute.builder()
+                .key(parts[1].trim())
+                .value(parts[2].trim().length() <= 1024 ? parts[2].trim() : "")
+                .valueText(parts[2].trim().length() > 1024 ? parts[2].trim() : "")
+                .credential(credential)
+                .build();
     }
 
     private Optional<CredentialMetaDataDto> getCredentialMetaData(final JsonNode jsonNode) {

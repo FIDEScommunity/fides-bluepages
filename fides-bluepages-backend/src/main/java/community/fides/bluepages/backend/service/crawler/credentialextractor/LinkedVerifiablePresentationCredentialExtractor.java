@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.SignedJWT;
 import community.fides.bluepages.backend.domain.Credential;
 import community.fides.bluepages.backend.domain.DidService;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
@@ -57,7 +59,18 @@ public class LinkedVerifiablePresentationCredentialExtractor implements Credenti
     @SneakyThrows
     private Optional<Credential> extractCredential(final String vcJwt) {
         final SignedJWT jwt = SignedJWT.parse(vcJwt);
-        return verifiableCredentialBuilder.extractCredential(jwt.getPayload().toString());
+        final List<String> disclosures = getDisclosures(vcJwt);
+        return verifiableCredentialBuilder.extractCredential(jwt.getPayload().toString(), disclosures);
+    }
+
+    private List<String> getDisclosures(String vcJwt) {
+        if (!vcJwt.contains("~")) {
+            return List.of();
+        }
+        final var disclosures = vcJwt.split("~");
+        return Arrays.stream(Arrays.copyOfRange(disclosures, 1, disclosures.length))
+                .filter(disclosure -> !disclosure.isEmpty())
+                .toList();
     }
 
 }

@@ -15,7 +15,7 @@ public class JpaIntegrationTest {
     static final MySQLContainer MY_SQL_CONTAINER;
 
     static {
-        MY_SQL_CONTAINER = (MySQLContainer) new MySQLContainer("mysql:latest").withReuse(true);
+        MY_SQL_CONTAINER = (MySQLContainer) new MySQLContainer("mysql:8.0").withReuse(true);
         MY_SQL_CONTAINER.start();
     }
 

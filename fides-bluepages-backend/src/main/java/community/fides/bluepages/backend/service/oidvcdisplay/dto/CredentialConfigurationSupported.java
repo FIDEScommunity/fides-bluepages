@@ -38,5 +38,8 @@ public class CredentialConfigurationSupported {
     @JsonProperty("types")
     private List<String> types;
 
+    @JsonProperty("vct")
+    private String vct;
+
 
 }
