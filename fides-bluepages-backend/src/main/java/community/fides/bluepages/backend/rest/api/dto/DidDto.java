@@ -17,6 +17,7 @@ public class DidDto {
     private GenericAttribute title;
     private GenericAttribute subTitle1;
     private GenericAttribute subTitle2;
+    private GenericAttribute subTitle3;
     private GenericAttribute logo;
     private List<DidServiceDto> services;
 
