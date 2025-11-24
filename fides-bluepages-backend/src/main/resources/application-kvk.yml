@@ -1,0 +1,363 @@
+spring:
+  datasource:
+    url: jdbc:mysql://private-db-mysql-ams3-credenco-do-user-10427892-0.b.db.ondigitalocean.com:25060/kvk_bluepages
+    username: kvk_bluepages_user
+  flyway:
+    url: jdbc:mysql://private-db-mysql-ams3-credenco-do-user-10427892-0.b.db.ondigitalocean.com:25060/kvk_bluepages
+    user: kvk_bluepages_flyway_user
+  security.oauth2.resourceserver.jwt.issuer-uri: https://iam.credenco.com/realms/fides
+
+externalServices:
+  organizational-wallet:
+    apiKey: Qmkk6ZQhVlMUUkiMajH5HYvOISZ
+    apiBaseUrl: https://wallet.acc.credenco.com/api/
+
+display-config:
+  genericAttributes:
+    title:
+      credentialType: "[urn:org:fides:lpid:1]"
+      attribute: legal_person_name
+      fallback:
+        credentialType: ContactInfo
+        attribute: legalName
+    subTitle1:
+      credentialType: ContactInfo
+      attribute: location.address.addressLocality
+    subTitle2:
+      credentialType: ContactInfo
+      attribute: url
+    subTitle3:
+      credentialType: "[urn:org:fides:lpid:1]"
+      attribute: legal_person_id
+    logo:
+      credentialType: ContactInfo
+      attribute: logo
+  services:
+    OID4VCI:
+      title: OpenID4 Verifiable Credential Issuance
+      icon: pi-upload
+      displayOrder: 15
+      serviceTypeLabel: Service type
+      serviceEndpointLabel: Credential Issuer address
+    OID4VP:
+      title: OpenID4 Verifiable Presentation
+      icon: pi-download
+      displayOrder: 16
+      serviceTypeLabel: Service type
+      serviceEndpointLabel: Credential Wallet address
+    LinkedDomains:
+      title: Linked Domains
+      icon: pi-id-card
+      displayOrder: 17
+      serviceTypeLabel: Service type
+      serviceEndpointLabel: Domain addresses
+  credentials:
+    ContactInfo:
+      issuanceUrl: https://wallet.acc.credenco.com/public/df803dd4-32c6-4a69-afe5-d807c6701ed7/company/.well-known/openid-credential-issuer
+      icon: pi-phone
+      displayOrder: 1
+      attributesToShow:
+        location_address_postalCode:
+          type: text
+          label: Postal code
+        location_address_streetAddress:
+          type: text
+          label: Street
+        location_address_addressLocality:
+          type: text
+          label: Place / country
+        email:
+          type: email
+          label: Email
+        telephone:
+          type: phone
+          label: Phone
+        url:
+          type: url
+          label: Website
+        logo:
+          type: image
+          label: Logo
+    "[urn:org:fides:lpid:1]":
+      issuanceUrl: https://wallet.acc.credenco.com/public/df803dd4-32c6-4a69-afe5-d807c6701ed7/KVKv4/.well-known/openid-credential-issuer
+      icon: pi-receipt
+      displayOrder: 2
+      attributesToShow:
+        issuing_authority:
+          type: text
+          label: Issuer
+        issuing_authority_id:
+          type: text
+          label: Issuer ID
+        legal_person_id:
+          type: text
+          label: KVK nummer
+        legal_person_name:
+          type: text
+          label: Bedrijfsnaam
+    "[urn:org:fides:green_lane_verified:1]":
+      issuanceUrl: https://wallet.acc.credenco.com/public/df803dd4-32c6-4a69-afe5-d807c6701ed7/KVKv4/.well-known/openid-credential-issuer
+      icon: pi-receipt
+      displayOrder: 3
+      attributesToShow:
+        issuing_authority:
+          type: text
+          label: Issuer
+        issuing_authority_id:
+          type: text
+          label: Issuer ID
+        legal_person_id:
+          type: text
+          label: KVK nummer
+        legal_person_name:
+          type: text
+          label: Bedrijfsnaam
+    "[urn:org:fides:vat:1]":
+      issuanceUrl: https://wallet.acc.credenco.com/public/5ebe0351-f7a3-46dc-97e8-fdb356fb6f5b/Organization/.well-known/openid-credential-issuer
+      icon: pi-receipt
+      displayOrder: 4
+      attributesToShow:
+        legal_person_id:
+          type: text
+          label: KVK nummer
+        legal_person_name:
+          type: text
+          label: Bedrijfsnaam
+        legal_form_type:
+          type: text
+          label: Rechtsvorm
+        vat_number:
+          type: text
+          label: BTW nummer
+        tax_number:
+          type: text
+          label: RSIN nummer
+    "[urn:org:fides:iban:1]":
+      issuanceUrl: https://wallet.acc.credenco.com/public/5ebe0351-f7a3-46dc-97e8-fdb356fb6f5b/Organization/.well-known/openid-credential-issuer
+      icon: pi-receipt
+      displayOrder: 5
+      attributesToShow:
+        account_name:
+          type: text
+          label: KVK nummer
+        IBAN:
+          type: text
+          label: Bedrijfsnaam
+        issuing_authority:
+          type: text
+          label: Rechtsvorm
+        issuing_authority_id:
+          type: text
+          label: BTW nummer
+        account_type:
+          type: text
+          label: RSIN nummer
+        account_currency:
+          type: text
+          label: RSIN nummer
+        provider_country:
+          type: text
+          label: RSIN nummer
+    "[urn:org:fides:einv-direct:1]":
+      issuanceUrl: https://wallet.acc.credenco.com/public/5ebe0351-f7a3-46dc-97e8-fdb356fb6f5b/Organization/.well-known/openid-credential-issuer
+      icon: pi-receipt
+      displayOrder: 6
+      attributesToShow:
+        entityName:
+          type: text
+          label: Entity Name
+        country:
+          type: text
+          label: Country
+        documentIdentifiers:
+          type: text
+          label: Document Identifiers
+        processIdentifiers:
+          type: text
+          label: Process Identifiers
+        endpoint:
+          type: text
+          label: Endpoint
+        transportType:
+          type: text
+          label: Transport Type
+    "[urn:org:fides:einv-peppol:1]":
+      issuanceUrl: https://wallet.acc.credenco.com/public/5ebe0351-f7a3-46dc-97e8-fdb356fb6f5b/Organization/.well-known/openid-credential-issuer
+      icon: pi-receipt
+      displayOrder: 7
+      attributesToShow:
+        entityName:
+          type: text
+          label: Entity Name
+        country:
+          type: text
+          label: Country
+        peppolParticipantId:
+          type: text
+          label: Peppol ParticipantId
+        peppolSmpUrl:
+          type: text
+          label: Peppol Smp Url
+        peppolAs4Endpoint:
+          type: text
+          label: Peppol As4 Endpoint
+        documentIdentifiers:
+          type: text
+          label: Document Identifiers
+        processIdentifiers:
+          type: text
+          label: Process Identifiers
+        transportType:
+          type: text
+          label: Transport Type
+    "[urn:org:fides:einv-ppf-fr:1]":
+      issuanceUrl: https://wallet.acc.credenco.com/public/5ebe0351-f7a3-46dc-97e8-fdb356fb6f5b/Organization/.well-known/openid-credential-issuer
+      icon: pi-receipt
+      displayOrder: 8
+      attributesToShow:
+        entityName:
+          type: text
+          label: Entity Name
+        country:
+          type: text
+          label: Country
+        ppfPlatformId:
+          type: text
+          label: PPF PlatformId
+        ppfRecipientIds:
+          type: text
+          label: PPF RecipientIds
+        ppfMode:
+          type: text
+          label: PPF Mode
+        ppfApiEndpoint:
+          type: text
+          label: PPF API Endpoint
+        documentIdentifiers:
+          type: text
+          label: Document Identifiers
+        processIdentifiers:
+          type: text
+          label: Process Identifiers
+        transportType:
+          type: text
+          label: Transport Type
+    "[urn:org:cfp:fueldelivery:1]":
+      issuanceUrl: https://wallet.acc.credenco.com/public/5ebe0351-f7a3-46dc-97e8-fdb356fb6f5b/Organization/.well-known/openid-credential-issuer
+      icon: pi-receipt
+      displayOrder: 10
+      attributesToShow:
+        deliveryId:
+          type: text
+          label: Delivery Id
+        batchId:
+          type: text
+          label: Batch Id
+        relatedPosNumber:
+          type: text
+          label: Related Pos Number
+        deliveredQuantity:
+          type: text
+          label: Delivered Quantity
+        deliveredQuantityUnit:
+          type: text
+          label: Delivered Quantity Unit
+        deliveryDate:
+          type: text
+          label: Delivery Date
+        buyerName:
+          type: text
+          label: Buyer Name
+        buyerIdentifier:
+          type: text
+          label: Buyer Identifier
+        deliveryLocation:
+          type: text
+          label: Delivery Location
+    "urn:org:cfp:pos:1":
+      issuanceUrl: https://wallet.acc.credenco.com/public/5ebe0351-f7a3-46dc-97e8-fdb356fb6f5b/Organization/.well-known/openid-credential-issuer
+      icon: pi-receipt
+      displayOrder: 11
+      attributesToShow:
+        posNumber:
+          type: text
+          label: Pos Number
+        batchId:
+          type: text
+          label: Batch Id
+        scheme:
+          type: text
+          label: Scheme
+        schemeVersion:
+          type: text
+          label: Scheme Version
+        supplierName:
+          type: text
+          label: Supplier Name
+        supplierIdentifier:
+          type: text
+          label: Supplier Identifier
+        supplierDid:
+          type: text
+          label: Supplier Did
+        recipientName:
+          type: text
+          label: Recipient Name
+        recipientIdentifier:
+          type: text
+          label: Recipient Identifier
+        recipientDid:
+          type: text
+          label: Recipient Did
+        countryOfOrigin:
+          type: text
+          label: Country Of Origin
+        feedstockType:
+          type: text
+          label: Feedstock Type
+        fuelType:
+          type: text
+          label: Fuel Type
+        quantity:
+          type: text
+          label: Quantity
+        quantityUnit:
+          type: text
+          label: Quantity Unit
+        energyContentMj:
+          type: text
+          label: Energy Content Mj
+        ghgEmission_gCO2eqPerMJ:
+          type: text
+          label: GHG Emission gCO2eqPerMJ
+        ghgSavingPercent:
+          type: text
+          label: GHG Saving Percent
+        ISCCcertificateNumber:
+          type: text
+          label: ISCC Certificate Number
+        chainOfCustody:
+          type: text
+          label: Chain Of Custody
+        dateOfDispatch:
+          type: text
+          label: Date Of Dispatch
+        countryOfBiofuelProduction:
+          type: text
+          label: Country Of Biofuel Production
+    UTX0:
+      issuanceUrl: https://wallet.acc.credenco.com/public/5ebe0351-f7a3-46dc-97e8-fdb356fb6f5b/Organization/.well-known/openid-credential-issuer
+      icon: pi-receipt
+      displayOrder: 9
+      attributesToShow:
+        coin_type:
+          type: text
+          label: coin_type
+        network:
+          type: text
+          label: network
+
+crawler:
+  enabled: true
+  ebsi-api-crawler-enabled: false
+

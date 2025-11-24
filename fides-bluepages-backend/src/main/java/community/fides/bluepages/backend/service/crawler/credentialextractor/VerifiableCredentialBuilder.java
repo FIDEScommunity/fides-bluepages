@@ -47,10 +47,14 @@ public class VerifiableCredentialBuilder {
         return Optional.of(credential);
     }
 
-    private @org.jetbrains.annotations.NotNull List<CredentialAttribute> getAttributes(JsonNode jsonNode, Credential credential, List<String> disclosures) {
+    private @NotNull List<CredentialAttribute> getAttributes(JsonNode jsonNode, Credential credential, List<String> disclosures) {
         var credentialNode = jsonNode;
         if (credentialNode.has("vc")) {
+            // VCDM 1.0
             credentialNode = credentialNode.get("vc").get("credentialSubject");
+        } else if (credentialNode.has("credentialSubject")) {
+            // VCDM 2.0
+            credentialNode = credentialNode.get("credentialSubject");
         }
         final var attributes = StreamSupport.stream(Spliterators.spliteratorUnknownSize(credentialNode.fields(), Spliterator.ORDERED), false)
                 .flatMap(entry -> buildAttributeList(entry, credential, "").stream())

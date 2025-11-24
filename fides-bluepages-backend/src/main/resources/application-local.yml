@@ -1,4 +1,8 @@
 spring:
+  application:
+    name: webwallet-backend
+  config:
+    import: "classpath:default-display-config.yml"
   datasource:
     url: jdbc:mysql://localhost:3311/fides_bluepages
     username: root
@@ -8,6 +12,7 @@ spring:
     user: root
     password: my_password
     create-schemas: true
+  security.oauth2.resourceserver.jwt.issuer-uri: https://iam.acc.credenco.com/realms/fides
   docker:
     compose:
       enabled: true
@@ -30,6 +35,11 @@ logging:
         service:
           ExclusiveLockService: INFO
 
+externalServices:
+  organizational-wallet:
+    apiKey: tsh7ugwBfY3a1fE90w9aWnwg90A04
+    apiBaseUrl: http://localhost:8088/api
+
 crawler:
   ebsi-api-crawler-enabled: false
 
@@ -41,7 +51,7 @@ mock-organizational-wallet-config:
         -
           did: did:web:mijnkvk.acc.credenco.com:did:df63abc0-2cc9-49e5-b3f8-42a824ceb9a7
     -
-      credentialType: VAT
+      credentialType: Omzetbelasting
       trustedDids:
         -
           did: did:web:wallet.acc.credenco.com:did:bd064799-e498-4020-a427-1c50710d2ac0
@@ -90,7 +100,7 @@ mock-organizational-wallet-config:
             policyName: "signature"
             policyDescription: "Checks a JWT credential by verifying its cryptographic signature using the key referenced by the DID in `iss`."
             valid: true
-      VAT:
+      Omzetbelasting:
         verifiablePresentationStatus: VALID
         policyResults:
           -
