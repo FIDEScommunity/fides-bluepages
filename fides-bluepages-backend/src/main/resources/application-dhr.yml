@@ -9,6 +9,9 @@ display-config:
     subTitle2:
       credentialType: ContactInfo
       attribute: url
+    subTitle3:
+      credentialType: ContactInfo
+      attribute: location.address.addressLocality      
     logo:
       credentialType: ContactInfo
       attribute: logo

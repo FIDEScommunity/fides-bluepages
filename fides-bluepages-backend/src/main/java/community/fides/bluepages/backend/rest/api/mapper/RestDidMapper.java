@@ -30,6 +30,7 @@ public class RestDidMapper {
                 .title(getGenericAttribute(did, "title"))
                 .subTitle1(getGenericAttribute(did, "subTitle1"))
                 .subTitle2(getGenericAttribute(did, "subTitle2"))
+                .subTitle3(getGenericAttribute(did, "subTitle3"))
                 .logo(getGenericAttribute(did, "logo"));
         if (validationResults != null) {
             didDtoBuilder.services(didServiceMapper.from(getSortedServices(did.getServices()), locale, validationResults));
