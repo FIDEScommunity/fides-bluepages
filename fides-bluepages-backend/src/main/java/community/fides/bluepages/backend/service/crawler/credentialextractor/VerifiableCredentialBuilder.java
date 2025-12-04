@@ -98,12 +98,21 @@ public class VerifiableCredentialBuilder {
                     .flatMap(childEntry -> buildAttributeList(childEntry, credential, addPrefix(prefix, entry.getKey())).stream())
                     .toList();
         }
-        return List.of(CredentialAttribute.builder()
-                               .key(addPrefix(prefix, entry.getKey()))
-                               .value(entry.getValue().asText().length() <= 1024 ? entry.getValue().asText() : "")
-                               .valueText(entry.getValue().asText().length() > 1024 ? entry.getValue().asText() : "")
-                               .credential(credential)
-                               .build());
+        if (entry.getValue().isArray()) {
+            return List.of(buildAttribute(entry.getKey(), entry.getValue(), credential, prefix));
+        }
+        return List.of(buildAttribute(entry.getKey(), entry.getValue(), credential, prefix));
+    }
+
+    private CredentialAttribute buildAttribute(final String key, final JsonNode valueNode, final Credential credential, final String prefix) {
+        final String attributeKey = addPrefix(prefix, key);
+        final String rawValue = valueNode.isValueNode() ? valueNode.asText() : valueNode.toString();
+        return CredentialAttribute.builder()
+                .key(attributeKey)
+                .value(rawValue.length() <= 1024 ? rawValue : "")
+                .valueText(rawValue.length() > 1024 ? rawValue : "")
+                .credential(credential)
+                .build();
     }
 
     private @NotNull String addPrefix(final String prefix, final String key) {
